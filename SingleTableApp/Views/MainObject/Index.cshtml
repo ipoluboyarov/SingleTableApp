@@ -1,0 +1,28 @@
+﻿@model IEnumerable<SingleTableApp.Models.MainObject>
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div>
+    <h3>Справочники</h3>
+    <p>
+        @Html.ActionLink("Создать новый справочник", "CreateLibrary")
+    </p>
+    <p>
+        <input type="button" onclick="Save()" value="Заполнить БД"/>
+    </p>
+</div>
+
+<script>
+    function Save() {
+        $.ajax({
+            url: "@Url.Action("FillDB")",
+            type: "POST",
+            data: {
+                parentId: 1,
+                parentTypeId: 0
+            }
+        });
+    }
+</script>

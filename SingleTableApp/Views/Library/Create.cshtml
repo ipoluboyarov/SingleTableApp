@@ -1,0 +1,91 @@
+﻿@using SingleTableApp.Models
+@using Kendo.Mvc.UI
+
+@{
+    ViewBag.Title = "Создание справочника"; 
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<table>
+    <tr>
+        <td>
+            <p>Наименование нового справочника</p></td>
+        <td><input type="text" name="libraryName"/></td>
+    </tr>
+</table>
+
+<div>
+    @(Html.Kendo().Grid<FieldViewModel>()
+    .Name("grid")
+    .Columns(columns =>
+    {
+        columns.Bound(p => p.Name).Width(50);
+        columns.Bound(p => p.Type)
+            .ClientTemplate("#=Type.Value#")
+            .Width(30);
+        columns.Bound(p => p.Weight).Width(20);
+        columns.Command(command => command.Destroy()
+                .Text(" "))
+            .Width(20);
+    })
+    .ToolBar(toolBar =>
+    {
+        toolBar.Create().Text("Добавить реквизит");
+    })
+    .Editable(editable => editable.Mode(GridEditMode.InCell))
+    .HtmlAttributes(new { style = "height:300px; width:500px;" })
+    .Scrollable()
+    .DataSource(dataSource => dataSource
+        .Ajax()
+        .Events(events => events.Error("error_handler"))
+        .Model(model =>
+        {
+            model.Id(p => p.Id);
+            model.Field(p => p.Type).DefaultValue(ViewData["defaultType"] as MainObject);
+        })
+    )
+    )
+
+    <input type="button" onclick="Save()" value="Сохранить справочник" />
+
+    <script type="text/javascript">
+        function error_handler(e) {
+            if (e.errors) {
+                var message = "Errors:\n";
+                $.each(e.errors, function (key, value) {
+                    if ('errors' in value) {
+                        $.each(value.errors, function () {
+                            message += this + "\n";
+                        });
+                    }
+                });
+                alert(message);
+            }
+        }
+
+        function Save() {
+            var kendoData = kendo.observable({
+                myFields: $("#grid").data("kendoGrid").dataSource.view()
+            });
+            var libraryName = $("input[name='libraryName']").val();
+
+            var fields = JSON.stringify(kendoData);
+            $.ajax({
+                url: "@Url.Action("AddNewLibrary")",
+                type: "POST",
+                data: {
+                    fields: fields,
+                    libraryName: libraryName
+                },
+                success: function(result) {
+                    if (result.errorMsg.length > 0) {
+                        alert(result.errorMsg);
+                    } else {
+                        alert("Справочник " + libraryName + " создан");
+                        window.location.href = result.redirectUrl;
+                    }
+                }
+            });
+        }
+
+    </script>
+</div>

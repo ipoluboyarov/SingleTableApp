@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>Old.Kendo.Mvc</id>
+    <version>2012.3.1315.340</version>
+    <title>Kendo.Mvc</title>
+    <authors>Telerik</authors>
+    <owners>Telerik</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Old Kendo.MVC dll.</description>
+    <summary />
+    <copyright>Telerik</copyright>
+    <language>en-US</language>
+  </metadata>
+</package>

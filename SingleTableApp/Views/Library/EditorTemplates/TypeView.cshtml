@@ -1,0 +1,8 @@
+﻿@using Kendo.Mvc.UI;
+@model SingleTableApp.Models.MainObject
+
+@(Html.Kendo().DropDownListFor(m => m)
+        .DataValueField("Id")
+        .DataTextField("Value")
+        .BindTo((System.Collections.IEnumerable)ViewData["types"])
+)

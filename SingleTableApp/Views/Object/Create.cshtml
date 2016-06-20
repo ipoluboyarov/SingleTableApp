@@ -1,0 +1,108 @@
+﻿@model SingleTableApp.Models.MainObject
+@using Kendo.Mvc.UI;
+@Scripts.Render("~/bundles/jquery")
+@Scripts.Render("~/bundles/kendo")
+
+<h4>Класс объекта</h4>
+<table>
+    <tr>
+        <td>
+            <p>
+                <div class="demo-section k-content">
+                    @(Html.Kendo().DropDownListFor(m => m)
+                          .Name("types")
+                          .DataValueField("Id")
+                          .DataTextField("Value")
+                          .BindTo((System.Collections.IEnumerable) ViewData["types"])
+                          .Events(e =>
+                          {
+                              e.Change("dropdownlist_change");
+                              e.DataBound("dropdownlist_change");
+                          })
+                          )
+                </div>
+            </p>
+        </td>
+        <td>
+            <p>
+                <input type="text" name="objectName" />
+            </p>
+        </td>
+    </tr>
+</table>
+
+<p>
+    <div id="holder"></div>
+</p>
+<input type="button" onclick="Save()" value="Добавить объект"/>
+
+
+<script>
+    function dropdownlist_change(e) {
+        $.getJSON('/Object/Fields/' + this.dataItem(e.item).Id,
+            function (data) {
+                var items = '<form id="formValues"> <table id="tableValues">';
+                $.each(data,
+                    function (i, field) {
+                        var ctrl = "<input Id=" + field.Id + " type='" + field.Type.Value + "' step='any'>";
+                        items += "<tr><td>" + field.Name + "</td><td>" + ctrl + "</td></tr>";
+                    });
+                items += "</table></form>";
+                $('#holder').html(items);
+            });
+    }
+
+
+    function Save() {
+        var values = GetArrValues();
+        var fields = JSON.stringify(values);
+        var objectName = $("input[name='objectName']").val();
+        var dropdownlist = $("#types").data("kendoDropDownList");
+        var libraryId = dropdownlist.dataItem().Id;
+        var parentId = '@ViewData["parentId"]';
+        var isChildren = '@ViewData["isChildren"]';
+
+        $.ajax({
+            url: "@Url.Action("AddNewObject")",
+            type: "POST",
+            data: {
+                fields: fields,
+                objectName: objectName,
+                libraryId: libraryId,
+                parentId: parentId,
+                isChildren: isChildren
+            },
+            success: function (result) {
+                if (result.errorMsg.length > 0) {
+                    alert(result.errorMsg);
+                } else {
+                   alert("Объект " + objectName + " создан!");                  
+                }
+
+            }
+        });
+        
+        
+        
+
+    }
+
+    function GetArrValues() {
+        var result = [];
+
+        var elements = document.forms.formValues.getElementsByTagName("input");
+
+        for (var i = 0; i < elements.length; i++) {
+
+            var item = {
+                "key": elements[i].id,
+                "value": elements[i].value
+            };
+
+            result.push(item);
+        }
+
+        return result;
+    }
+
+</script>
